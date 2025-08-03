@@ -5,9 +5,11 @@ import PersonDetail from './PersonDetail';
 
 const AdvancedFamilyTree = () => {
   const chartRef = useRef(null);
+  const containerRef = useRef(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedPerson, setSelectedPerson] = useState(null);
   const [zoomLevel, setZoomLevel] = useState(100);
+  const [isFullscreen, setIsFullscreen] = useState(false);
   
   // Flatten the tree for search functionality
   const flattenTree = (node, result = []) => {
@@ -78,7 +80,7 @@ const AdvancedFamilyTree = () => {
           orient: 'TB',
           symbol: 'emptyCircle',
           symbolSize: 10,
-          initialTreeDepth: 2,
+          initialTreeDepth: 6,
           roam: true,
           lineStyle: {
             curveness: 0.5
@@ -165,8 +167,52 @@ const AdvancedFamilyTree = () => {
     // For a complete implementation, we'd need to track node positions
   };
   
+  // 处理全屏切换
+  const toggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      // 进入全屏模式
+      if (containerRef.current.requestFullscreen) {
+        containerRef.current.requestFullscreen();
+      } else if (containerRef.current.webkitRequestFullscreen) { /* Safari */
+        containerRef.current.webkitRequestFullscreen();
+      } else if (containerRef.current.msRequestFullscreen) { /* IE11 */
+        containerRef.current.msRequestFullscreen();
+      }
+      setIsFullscreen(true);
+    } else {
+      // 退出全屏模式
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      } else if (document.webkitExitFullscreen) { /* Safari */
+        document.webkitExitFullscreen();
+      } else if (document.msExitFullscreen) { /* IE11 */
+        document.msExitFullscreen();
+      }
+      setIsFullscreen(false);
+    }
+  };
+  
+  // 监听全屏状态变化
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+    
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+    document.addEventListener('mozfullscreenchange', handleFullscreenChange);
+    document.addEventListener('MSFullscreenChange', handleFullscreenChange);
+    
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+      document.removeEventListener('webkitfullscreenchange', handleFullscreenChange);
+      document.removeEventListener('mozfullscreenchange', handleFullscreenChange);
+      document.removeEventListener('MSFullscreenChange', handleFullscreenChange);
+    };
+  }, []);
+  
   return (
-    <div className="flex-1 bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden lg:min-w-[600px]">
+    <div ref={containerRef} className="flex-1 bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden lg:min-w-[600px]">
       <div className="p-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-gray-200 dark:border-gray-700">
         <div className="relative w-full md:w-64">
           <input
@@ -204,17 +250,26 @@ const AdvancedFamilyTree = () => {
           >
             +
           </button>
+          <button 
+            onClick={toggleFullscreen}
+            className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors duration-150 ease-in-out text-gray-700 dark:text-white"
+            title={isFullscreen ? '退出全屏' : '全屏预览'}
+          >
+            {isFullscreen ? '↙' : '↗'}
+          </button>
         </div>
       </div>
       
-      <div 
-        ref={chartRef} 
-        className="w-full h-[500px] md:h-[600px] lg:h-[700px] transition-transform duration-300 ease-in-out"
-        style={{ 
-          transform: `scale(${zoomLevel / 100})`,
-          transformOrigin: 'center center'
-        }} 
-      />
+      <div className="w-full overflow-hidden pt-4">
+        <div 
+          ref={chartRef} 
+          className="w-full h-[700px] md:h-[800px] lg:h-[900px] transition-transform duration-300 ease-in-out"
+          style={{ 
+            transform: `scale(${zoomLevel / 100})`,
+            transformOrigin: 'top center'
+          }} 
+        />
+      </div>
       
       {selectedPerson && (
         <PersonDetail 

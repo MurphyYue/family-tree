@@ -2,7 +2,6 @@ import { useState } from 'react'
 import './App.css'
 import AdvancedFamilyTree from './components/AdvancedFamilyTree'
 import FamilyStats from './components/FamilyStats'
-import TailwindTest from './TailwindTest'
 
 function App() {
   return (
@@ -12,9 +11,6 @@ function App() {
         <p className="text-gray-600 dark:text-gray-300 mt-1">家族关系可视化</p>
       </header>
       
-      {/* Tailwind CSS 测试组件 */}
-      {/* <TailwindTest /> */}
-      
       <main className="flex-1 p-4 md:p-6 lg:p-8 overflow-auto">
         <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-4 lg:gap-8">
           <AdvancedFamilyTree />
@@ -23,7 +19,7 @@ function App() {
       </main>
       
       <footer className="bg-white dark:bg-gray-800 py-4 px-6 text-center text-gray-600 dark:text-gray-300 shadow-inner">
-        <p>© 2023 家族关系图 - 使用 React, ECharts 构建</p>
+        <p>河北省遵化市上港村岳氏族谱</p>
       </footer>
     </div>
   )
