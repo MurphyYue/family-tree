@@ -1,0 +1,229 @@
+import { useState, useEffect, useRef } from 'react';
+import * as echarts from 'echarts';
+import { relationData } from '../family-data';
+import PersonDetail from './PersonDetail';
+
+const AdvancedFamilyTree = () => {
+  const chartRef = useRef(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedPerson, setSelectedPerson] = useState(null);
+  const [zoomLevel, setZoomLevel] = useState(100);
+  
+  // Flatten the tree for search functionality
+  const flattenTree = (node, result = []) => {
+    result.push(node);
+    if (node.children) {
+      node.children.forEach(child => flattenTree(child, result));
+    }
+    return result;
+  };
+  
+  const allPeople = flattenTree(relationData);
+  
+  // Filter people based on search term
+  const filteredPeople = searchTerm
+    ? allPeople.filter(person => person.name.includes(searchTerm))
+    : [];
+  
+  useEffect(() => {
+    if (!chartRef.current) return;
+    
+    // Initialize chart
+    const chart = echarts.init(chartRef.current);
+    
+    // Configure chart options
+    const option = {
+      title: {
+        text: '家族关系图',
+        subtext: '点击节点可以展开或收缩',
+        left: 'center',
+        top: 10,
+        textStyle: {
+          color: (params) => {
+            const isDarkMode = document.documentElement.classList.contains('dark') || 
+                             window.matchMedia('(prefers-color-scheme: dark)').matches;
+            return isDarkMode ? '#ffffff' : '#333';
+          }
+        },
+        subtextStyle: {
+          color: (params) => {
+            const isDarkMode = document.documentElement.classList.contains('dark') || 
+                             window.matchMedia('(prefers-color-scheme: dark)').matches;
+            return isDarkMode ? '#cccccc' : '#666';
+          }
+        }
+      },
+      tooltip: {
+        trigger: 'item',
+        triggerOn: 'mousemove',
+        formatter: (params) => {
+          const { name, value } = params.data;
+          return `<div style="font-weight: bold;">${name}</div>`;
+        }
+      },
+      toolbox: {
+        show: true,
+        feature: {
+          restore: { show: true },
+          saveAsImage: { show: true }
+        }
+      },
+      series: [
+        {
+          type: 'tree',
+          data: [relationData],
+          top: '10%',
+          bottom: '10%',
+          layout: 'orthogonal',
+          orient: 'TB',
+          symbol: 'emptyCircle',
+          symbolSize: 10,
+          initialTreeDepth: 2,
+          roam: true,
+          lineStyle: {
+            curveness: 0.5
+          },
+          label: {
+            position: 'top',
+            rotate: 0,
+            verticalAlign: 'middle',
+            align: 'center',
+            fontSize: 14,
+            color: (params) => {
+              // 获取当前主题是否为深色模式
+              const isDarkMode = document.documentElement.classList.contains('dark') || 
+                                window.matchMedia('(prefers-color-scheme: dark)').matches;
+              // 深色模式下使用亮色文字，浅色模式下使用深色文字
+              return isDarkMode ? '#ffffff' : '#333';
+            }
+          },
+          leaves: {
+            label: {
+              position: 'bottom',
+              rotate: 0,
+              verticalAlign: 'middle',
+              align: 'center',
+              color: (params) => {
+                // 获取当前主题是否为深色模式
+                const isDarkMode = document.documentElement.classList.contains('dark') || 
+                                  window.matchMedia('(prefers-color-scheme: dark)').matches;
+                // 深色模式下使用亮色文字，浅色模式下使用深色文字
+                return isDarkMode ? '#ffffff' : '#333';
+              }
+            }
+          },
+          emphasis: {
+            focus: 'descendant',
+            itemStyle: {
+              color: '#E06666'
+            },
+            lineStyle: {
+              color: '#E06666',
+              width: 2
+            }
+          },
+          expandAndCollapse: true,
+          animationDuration: 550,
+          animationDurationUpdate: 750
+        }
+      ]
+    };
+    
+    // Apply options to chart
+    chart.setOption(option);
+    
+    // Handle resize
+    const handleResize = () => {
+      chart.resize();
+    };
+    window.addEventListener('resize', handleResize);
+    
+    // Handle zoom level changes
+    chart.getZr().on('mousewheel', function(params) {
+      const newZoom = Math.max(50, Math.min(200, zoomLevel + (params.wheelDelta > 0 ? 10 : -10)));
+      setZoomLevel(newZoom);
+    });
+    
+    // Handle click events
+    chart.on('click', function(params) {
+      if (params.data) {
+        setSelectedPerson(params.data);
+      }
+    });
+    
+    // Clean up
+    return () => {
+      chart.dispose();
+      window.removeEventListener('resize', handleResize);
+    };
+  }, [zoomLevel]);
+  
+  // Focus on a person when selected from search
+  const focusOnPerson = (person) => {
+    setSelectedPerson(person);
+    // This would ideally navigate to the person in the chart
+    // For a complete implementation, we'd need to track node positions
+  };
+  
+  return (
+    <div className="flex-1 bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden lg:min-w-[600px]">
+      <div className="p-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-gray-200 dark:border-gray-700">
+        <div className="relative w-full md:w-64">
+          <input
+            type="text"
+            placeholder="搜索家族成员..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+          />
+          {filteredPeople.length > 0 && (
+            <div className="absolute z-10 mt-1 w-full bg-white dark:bg-gray-700 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+              {filteredPeople.map((person, index) => (
+                <div 
+                  key={index} 
+                  className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer transition-colors duration-150 ease-in-out dark:text-white"
+                  onClick={() => focusOnPerson(person)}
+                >
+                  {person.name}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+        <div className="flex items-center space-x-3 self-end md:self-auto">
+          <button 
+            onClick={() => setZoomLevel(Math.max(50, zoomLevel - 10))}
+            className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors duration-150 ease-in-out text-gray-700 dark:text-white"
+          >
+            -
+          </button>
+          <span className="text-gray-700 dark:text-white font-medium">{zoomLevel}%</span>
+          <button 
+            onClick={() => setZoomLevel(Math.min(200, zoomLevel + 10))}
+            className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors duration-150 ease-in-out text-gray-700 dark:text-white"
+          >
+            +
+          </button>
+        </div>
+      </div>
+      
+      <div 
+        ref={chartRef} 
+        className="w-full h-[500px] md:h-[600px] lg:h-[700px] transition-transform duration-300 ease-in-out"
+        style={{ 
+          transform: `scale(${zoomLevel / 100})`,
+          transformOrigin: 'center center'
+        }} 
+      />
+      
+      {selectedPerson && (
+        <PersonDetail 
+          person={selectedPerson} 
+          onClose={() => setSelectedPerson(null)} 
+        />
+      )}
+    </div>
+  );
+};
+
+export default AdvancedFamilyTree;
