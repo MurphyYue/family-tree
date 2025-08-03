@@ -18,7 +18,7 @@ const PersonDetail = ({ person, onClose }) => {
           
           <div className="space-y-4">
             <div className="flex items-center border-b border-gray-200 dark:border-gray-700 pb-2">
-              <span className="w-24 font-medium text-gray-600 dark:text-gray-400">辈分值:</span>
+              <span className="w-24 font-medium text-gray-600 dark:text-gray-400">家庭排行:</span>
               <span className="text-gray-800 dark:text-white">{person.value}</span>
             </div>
             

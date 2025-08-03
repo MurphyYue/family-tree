@@ -36,46 +36,25 @@ const AdvancedFamilyTree = () => {
     // Configure chart options
     const option = {
       title: {
-        text: '家族关系图',
-        subtext: '点击节点可以展开或收缩',
+        text: '',
+        subtext: '',
         left: 'center',
         top: 10,
-        textStyle: {
-          color: (params) => {
-            const isDarkMode = document.documentElement.classList.contains('dark') || 
-                             window.matchMedia('(prefers-color-scheme: dark)').matches;
-            return isDarkMode ? '#ffffff' : '#333';
-          }
-        },
-        subtextStyle: {
-          color: (params) => {
-            const isDarkMode = document.documentElement.classList.contains('dark') || 
-                             window.matchMedia('(prefers-color-scheme: dark)').matches;
-            return isDarkMode ? '#cccccc' : '#666';
-          }
-        }
       },
       tooltip: {
         trigger: 'item',
         triggerOn: 'mousemove',
         formatter: (params) => {
           const { name, value } = params.data;
-          return `<div style="font-weight: bold;">${name}</div>`;
-        }
-      },
-      toolbox: {
-        show: true,
-        feature: {
-          restore: { show: true },
-          saveAsImage: { show: true }
+          return `<div style="font-weight: bold; font-size: 64px; height: 100px; line-height: 100px;">${name}</div>`;
         }
       },
       series: [
         {
           type: 'tree',
           data: [relationData],
-          top: '10%',
-          bottom: '10%',
+          top: '15%',
+          bottom: '15%',
           layout: 'orthogonal',
           orient: 'TB',
           symbol: 'emptyCircle',
@@ -85,12 +64,17 @@ const AdvancedFamilyTree = () => {
           lineStyle: {
             curveness: 0.5
           },
+          itemStyle: {
+            borderWidth: 2
+          },
+          symbolSize: 20,
           label: {
             position: 'top',
             rotate: 0,
             verticalAlign: 'middle',
             align: 'center',
-            fontSize: 14,
+            fontSize: 18,
+            margin: 30,
             color: (params) => {
               // 获取当前主题是否为深色模式
               const isDarkMode = document.documentElement.classList.contains('dark') || 
