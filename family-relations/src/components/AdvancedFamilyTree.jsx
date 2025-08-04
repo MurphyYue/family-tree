@@ -59,7 +59,7 @@ const AdvancedFamilyTree = () => {
           layout: 'orthogonal',
           orient: 'TB',
           symbol: 'emptyCircle',
-          initialTreeDepth: 6,
+          initialTreeDepth: 4,
           roam: true,
           lineStyle: {
             curveness: 0.5

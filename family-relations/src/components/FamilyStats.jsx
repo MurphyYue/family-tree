@@ -57,10 +57,10 @@ function FamilyStats() {
           <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">家族代数</div>
         </div>
         
-        <div className="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-4 text-center">
+        {/* <div className="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-4 text-center">
           <div className="text-2xl font-bold text-purple-600 dark:text-purple-400 truncate">{stats.mostChildren.name}</div>
           <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">子女最多 ({stats.mostChildren.count}人)</div>
-        </div>
+        </div> */}
       </div>
       
       <div className="mt-6">
