@@ -32,7 +32,8 @@ const AdvancedFamilyTree = () => {
     
     // Initialize chart
     const chart = echarts.init(chartRef.current);
-    
+    const isDarkMode = document.documentElement.classList.contains('dark') || 
+                                window.matchMedia('(prefers-color-scheme: dark)').matches;
     // Configure chart options
     const option = {
       title: {
@@ -58,7 +59,6 @@ const AdvancedFamilyTree = () => {
           layout: 'orthogonal',
           orient: 'TB',
           symbol: 'emptyCircle',
-          symbolSize: 10,
           initialTreeDepth: 6,
           roam: true,
           lineStyle: {
@@ -74,14 +74,7 @@ const AdvancedFamilyTree = () => {
             verticalAlign: 'middle',
             align: 'center',
             fontSize: 18,
-            margin: 30,
-            color: (params) => {
-              // 获取当前主题是否为深色模式
-              const isDarkMode = document.documentElement.classList.contains('dark') || 
-                                window.matchMedia('(prefers-color-scheme: dark)').matches;
-              // 深色模式下使用亮色文字，浅色模式下使用深色文字
-              return isDarkMode ? '#ffffff' : '#333';
-            }
+            color: isDarkMode ? '#ffffff' : '#333'
           },
           leaves: {
             label: {
@@ -89,13 +82,7 @@ const AdvancedFamilyTree = () => {
               rotate: 0,
               verticalAlign: 'middle',
               align: 'center',
-              color: (params) => {
-                // 获取当前主题是否为深色模式
-                const isDarkMode = document.documentElement.classList.contains('dark') || 
-                                  window.matchMedia('(prefers-color-scheme: dark)').matches;
-                // 深色模式下使用亮色文字，浅色模式下使用深色文字
-                return isDarkMode ? '#ffffff' : '#333';
-              }
+              color: isDarkMode ? '#ffffff' : '#333'
             }
           },
           emphasis: {
